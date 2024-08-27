@@ -1,0 +1,88 @@
+---
+title: "Starring and unstarring a Drive file with an encrypted credential"
+format: html
+resource_files:
+- "service_account_cred_enc.json"
+---
+
+```{r }
+#| label: setup
+#| include: FALSE
+can_decrypt <- gargle::secret_has_key("GOOGLEDRIVE_DEPLOY_DEMO_KEY")
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = can_decrypt
+)
+```
+
+```{r}
+#| eval: !expr '!can_decrypt'
+#| echo: FALSE
+#| results: 'asis'
+cat("*Decryption key is unavailable, so no code will be evaluated.*")
+```
+
+The following chunk reads the stored token from file, using the environment variable `"GOOGLEDRIVE_DEPLOY_DEMO_KEY"` to decrypt it, and tells googledrive to use it.
+
+```{r}
+library(googledrive)
+
+try(drive_auth(
+  path = gargle::secret_decrypt_json(
+    "service_account_cred_enc.json",
+    key = "GOOGLEDRIVE_DEPLOY_DEMO_KEY"
+  )
+))
+```
+
+We wrap that in `try()` to guard against the scenario where the token *can* be decrypted, but auth still fails.
+For example, maybe the service account has been deleted or had certain permissions revoked.
+If auth has been successful, the `drive_user()` call below reveals details about the account associated with the token.
+If auth has not been successful, `drive_user()` will throw an error.
+Other functions that can be helpful for confirming the validity of a re-loaded token are `gargle::token_tokeninfo()` and `gargle::token_userinfo()`.
+
+```{r}
+#| error: TRUE
+drive_user()
+```
+
+## Do something on Drive
+
+Our toy task is to star or unstar a file on Drive.
+
+### Make sure the file exists
+
+We're going to work with a file named "chicken_poem.txt".
+Do we already have a Drive file named "chicken_poem.txt"?
+If not, create it.
+
+```{r}
+poem <- drive_find("chicken_poem.txt")
+if (nrow(poem) < 1) {
+    poem <- drive_example_local("chicken.txt") |>
+        drive_upload("chicken_poem.txt")
+}
+(poem_id <- poem$id)
+```
+
+### Star or unstar the file
+
+Is "chicken_poem.txt" starred?
+If yes, unstar it.
+If no, star it.
+
+```{r}
+(x <- drive_reveal(poem_id, "starred"))
+drive_update(poem_id, starred = !x$starred)
+```
+
+Recheck the starred status of "chicken_poem.txt".
+It should be the opposite of where we started.
+
+```{r}
+drive_reveal(poem_id, "starred")
+```
+
+This small example can be used as the basis for deploying content to a platform such as Posit Connect that works with googledrive.

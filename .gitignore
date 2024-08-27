@@ -4,3 +4,7 @@
 .httr-oauth
 .DS_Store
 .quarto
+googledrive-with-encrypted-token_files/*
+*.html
+service_account_cred.json
+rsconnect/*
