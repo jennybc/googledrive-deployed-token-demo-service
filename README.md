@@ -5,7 +5,7 @@ This is a demonstration of how to rig a [Quarto](https://quarto.org/) document t
 2. Will be deployed on a platform, such as [Posit Connect](https://posit.co/products/enterprise/connect/) or [Posit Connect Cloud](https://connect.posit.cloud/).
 
 This demonstration shows how to use a Google service account for this task, which is generally better suited to a deployed data product than a user token.
-However, it is possible to something similar with a user token and a similar demonstration is available for the gmailr R package.
+However, it is possible to something similar with a user token and a [similar demonstration is available for the gmailr R package](https://github.com/r-lib/gmailr/blob/main/inst/deployed-token-demo/README.md).
 
 ## Interactive setup
 
