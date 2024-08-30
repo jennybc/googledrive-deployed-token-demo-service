@@ -66,7 +66,7 @@ dir_ls(glob = "*.json")
 x$type
 
 # This should be the email of the desired service account.
-x$ client_email
+x$client_email
 
 # We CANNOT read the encrypted cred by normal means.
 # THIS SHOULD ERROR!
